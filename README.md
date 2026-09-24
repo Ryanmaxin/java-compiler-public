@@ -24,17 +24,7 @@ I worked on the scanner and parser infrastructure, AST construction and visualiz
 
 ## Inside the compiler
 
-### Two Sum: source and frontend tree
-
-This three-file example came from our browser compiler demo. It uses arrays, nested loops, object construction, and calls between classes. The image is the **full frontend AST** for all three files, rendered from the compiler's [DOT output](visualizations/two-sum-full-frontend.dot). Open the [full-size PNG](visualizations/two-sum-full-frontend.png) or [SVG](visualizations/two-sum-full-frontend.svg) to zoom in.
-
-[![Full frontend abstract syntax tree for the three-file Two Sum example](visualizations/two-sum-full-frontend.png)](visualizations/two-sum-full-frontend.svg)
-
-The whole tree is broad, so here is the `TwoSumSolver` branch on its own. It has the two loops and the return of a new `IntPair`. This view is also taken from the compiler's [DOT output](visualizations/two-sum-solver-frontend.dot).
-
-[![Frontend abstract syntax tree focused on the TwoSumSolver class](visualizations/two-sum-solver-frontend.png)](visualizations/two-sum-solver-frontend.png)
-
-The input program is below. The files are also available as [TwoSumDemo.java](examples/two-sum/TwoSumDemo.java), [TwoSumSolver.java](examples/two-sum/TwoSumSolver.java), and [IntPair.java](examples/two-sum/IntPair.java).
+This three-file Two Sum example uses arrays, nested loops, object construction, and calls between classes. The source is below; the files are also available as [TwoSumDemo.java](examples/two-sum/TwoSumDemo.java), [TwoSumSolver.java](examples/two-sum/TwoSumSolver.java), and [IntPair.java](examples/two-sum/IntPair.java).
 
 **TwoSumDemo.java**
 
@@ -111,15 +101,11 @@ public class IntPair {
 }
 ```
 
-### Climb Stairs: before and after type checking
+### Full frontend tree
 
-This is the same recursive `ways(int n)` method at two points in the pipeline. The [frontend AST](visualizations/climb-stairs-frontend.dot) still contains an ambiguous name for the calls to `ways`.
+This is the **full frontend AST** for all three Two Sum files, rendered from the compiler's [DOT output](visualizations/two-sum-full-frontend.dot). Open the [full-size PNG](visualizations/two-sum-full-frontend.png) or [SVG](visualizations/two-sum-full-frontend.svg) to zoom in.
 
-[![Frontend AST for a recursive Climb Stairs method before name resolution and type checking](visualizations/climb-stairs-frontend.png)](visualizations/climb-stairs-frontend.png)
-
-The image below is the AST **after type checking**. The calls now have resolved targets, and the expressions show symbol IDs and types. These views helped us find where a bad binding first appeared.
-
-[![Type-checked AST for the same Climb Stairs method, annotated with resolved names, symbol IDs, and expression types](image.png)](image.png)
+[![Full frontend abstract syntax tree for the three-file Two Sum example](visualizations/two-sum-full-frontend.png)](visualizations/two-sum-full-frontend.svg)
 
 ## Reports
 
