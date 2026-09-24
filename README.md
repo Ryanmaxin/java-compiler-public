@@ -12,11 +12,11 @@ It was an adjustment, though. Early on, even adding debug output to a function c
 
 ## From source to assembly
 
-| Stage | What happens |
-| --- | --- |
-| Front end | A hand-built DFA scans the source. An LALR(1) parser builds a parse tree; we turn that into an AST and weed out programs that the grammar alone cannot reject. |
-| Middle end | Passes resolve names across files, build class and interface relationships, disambiguate names, check types, and find unreachable code. |
-| Back end | The compiler lays out objects and arrays, prepares method dispatch and subtype tables, and generates 32-bit x86 assembly. |
+| Stage      | What happens                                                                                                                                                   |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Front end  | A hand-built DFA scans the source. An LALR(1) parser builds a parse tree; we turn that into an AST and weed out programs that the grammar alone cannot reject. |
+| Middle end | Passes resolve names across files, build class and interface relationships, disambiguate names, check types, and find unreachable code.                        |
+| Back end   | The compiler lays out objects and arrays, prepares method dispatch and subtype tables, and generates 32-bit x86 assembly.                                      |
 
 The part that took the most care was carrying meaning from one pass to the next. A name that looks simple in the source can depend on imports, scope, inheritance, and whether it names a type or a value. We used symbol IDs to connect uses to declarations, with side tables for information found later in the pipeline. That let us add the later checks without repeatedly reshaping the AST.
 
@@ -24,7 +24,7 @@ I worked on the scanner and parser infrastructure, AST construction and visualiz
 
 ## Inside the compiler
 
-This small Joos program is a useful way to follow one input through the compiler. `getDensity` divides two integers; `test` calls it and prints the result. The diagrams show the whole `Main` class, including both methods.
+This small Joos program is a useful way to follow one input through the compiler.
 
 ### Source
 
@@ -88,10 +88,10 @@ ret
 
 ## Reports
 
-| Report | What it covers |
-| --- | --- |
-| [A1: Scanner, Parser, AST, and Weeder](CS%20444%20A1%20Report%20%28FINAL%29.pdf) | The scanner DFA, LALR(1) parser, AST construction, weeding, and early tests. |
-| [A2–A4: Name Resolution, Type Checking, and Static Analysis](CS%20444%20A2-4%20Report%20%28FINAL%29.pdf) | Cross-file symbols, hierarchy checks, name disambiguation, type checking, and reachability. |
-| [A5: Code Generation](CS%20444%20A5%20Report%20%28FINAL%29.pdf) | x86 generation, object and array layouts, dynamic dispatch, runtime type checks, and end-to-end tests. |
+| Report                                                                                                   | What it covers                                                                                         |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| [A1: Scanner, Parser, AST, and Weeder](CS%20444%20A1%20Report%20%28FINAL%29.pdf)                         | The scanner DFA, LALR(1) parser, AST construction, weeding, and early tests.                           |
+| [A2–A4: Name Resolution, Type Checking, and Static Analysis](CS%20444%20A2-4%20Report%20%28FINAL%29.pdf) | Cross-file symbols, hierarchy checks, name disambiguation, type checking, and reachability.            |
+| [A5: Code Generation](CS%20444%20A5%20Report%20%28FINAL%29.pdf)                                          | x86 generation, object and array layouts, dynamic dispatch, runtime type checks, and end-to-end tests. |
 
 The [Joos 1W language reference](https://student.cs.uwaterloo.ca/~cs444/joos.html) describes the Java subset we targeted.
