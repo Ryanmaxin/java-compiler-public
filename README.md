@@ -2,7 +2,13 @@
 
 We built a compiler for Joos 1W in CS 444 at the University of Waterloo. Joos 1W is a subset of Java 1.3, with classes, interfaces, arrays, inheritance, and enough of the type system to make compilation interesting. Our compiler is written in OCaml. It reads a program across multiple `.java` files, checks it, and emits 32-bit x86 assembly.
 
-The team was Arnav Tripathi, Andreja Japundzic, and me, Ryan Maxin. The compiler source stays private under the course's academic integrity rules, but the reports below document how we built it.
+The team was Arnav Tripathi, Andreja Japundzic, and me, Ryan Maxin. We don't post the compiler source publicly because of the course's academic integrity rules. The code is available on request.
+
+## Why OCaml
+
+We wanted to try OCaml. We'd also heard that ML languages worked well for compilers, and Dwight VandenBerghe's [case for ML and OCaml](https://flint.cs.yale.edu/cs421/case-for-ml.html) helped convince us. Algebraic data types and pattern matching seemed like a good fit for tokens and trees, and they were. OCaml's type checker caught plenty of mistakes as we added passes.
+
+It was an adjustment, though. Early on, even adding debug output to a function could mean reworking its sequencing. Later, changes to AST variants could ripple through a lot of pattern matches. The A1 and A2–A4 reports say more about both sides of that choice.
 
 ## From source to assembly
 
@@ -18,9 +24,102 @@ I worked on the scanner and parser infrastructure, AST construction and visualiz
 
 ## Inside the compiler
 
-[![Type-checked abstract syntax tree for a recursive method, annotated with resolved names, symbol IDs, and expression types](image.png)](image.png)
+### Two Sum: source and frontend tree
 
-This is a compiler-generated view of a recursive `ways(int n)` method after type checking. The annotations show the resolved calls, symbol IDs, and expression types that later passes use. We generated views like this while debugging the handoff between stages. [Open the full image](image.png).
+This three-file example came from our browser compiler demo. It uses arrays, nested loops, object construction, and calls between classes. The image is the **full frontend AST** for all three files, rendered from the compiler's [DOT output](visualizations/two-sum-full-frontend.dot). Open the [full-size PNG](visualizations/two-sum-full-frontend.png) or [SVG](visualizations/two-sum-full-frontend.svg) to zoom in.
+
+[![Full frontend abstract syntax tree for the three-file Two Sum example](visualizations/two-sum-full-frontend.png)](visualizations/two-sum-full-frontend.svg)
+
+The whole tree is broad, so here is the `TwoSumSolver` branch on its own. It has the two loops and the return of a new `IntPair`. This view is also taken from the compiler's [DOT output](visualizations/two-sum-solver-frontend.dot).
+
+[![Frontend abstract syntax tree focused on the TwoSumSolver class](visualizations/two-sum-solver-frontend.png)](visualizations/two-sum-solver-frontend.png)
+
+The input program is below. The files are also available as [TwoSumDemo.java](examples/two-sum/TwoSumDemo.java), [TwoSumSolver.java](examples/two-sum/TwoSumSolver.java), and [IntPair.java](examples/two-sum/IntPair.java).
+
+**TwoSumDemo.java**
+
+```java
+public class TwoSumDemo {
+  public TwoSumDemo() {}
+
+  public static int test() {
+    int[] values = new int[6];
+    IntPair answer = null;
+
+    values[0] = 4;
+    values[1] = 1;
+    values[2] = 9;
+    values[3] = 3;
+    values[4] = 7;
+    values[5] = 11;
+
+    answer = new TwoSumSolver().solve(values, 10);
+
+    if (answer == null) {
+      System.out.println("not found");
+    } else {
+      System.out.println(answer.render());
+    }
+
+    return 123;
+  }
+}
+```
+
+**TwoSumSolver.java**
+
+```java
+public class TwoSumSolver {
+  public TwoSumSolver() {}
+
+  public IntPair solve(int[] values, int target) {
+    int i = 0;
+
+    while (i < values.length) {
+      int j = i + 1;
+
+      while (j < values.length) {
+        if (values[i] + values[j] == target) {
+          return new IntPair(i, j);
+        }
+        j = j + 1;
+      }
+
+      i = i + 1;
+    }
+
+    return null;
+  }
+}
+```
+
+**IntPair.java**
+
+```java
+public class IntPair {
+  public int first;
+  public int second;
+
+  public IntPair(int first, int second) {
+    this.first = first;
+    this.second = second;
+  }
+
+  public String render() {
+    return "[" + first + ", " + second + "]";
+  }
+}
+```
+
+### Climb Stairs: before and after type checking
+
+This is the same recursive `ways(int n)` method at two points in the pipeline. The [frontend AST](visualizations/climb-stairs-frontend.dot) still contains an ambiguous name for the calls to `ways`.
+
+[![Frontend AST for a recursive Climb Stairs method before name resolution and type checking](visualizations/climb-stairs-frontend.png)](visualizations/climb-stairs-frontend.png)
+
+The image below is the AST **after type checking**. The calls now have resolved targets, and the expressions show symbol IDs and types. These views helped us find where a bad binding first appeared.
+
+[![Type-checked AST for the same Climb Stairs method, annotated with resolved names, symbol IDs, and expression types](image.png)](image.png)
 
 ## Reports
 
