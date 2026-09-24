@@ -24,88 +24,67 @@ I worked on the scanner and parser infrastructure, AST construction and visualiz
 
 ## Inside the compiler
 
-This three-file Two Sum example uses arrays, nested loops, object construction, and calls between classes. The source is below; the files are also available as [TwoSumDemo.java](examples/two-sum/TwoSumDemo.java), [TwoSumSolver.java](examples/two-sum/TwoSumSolver.java), and [IntPair.java](examples/two-sum/IntPair.java).
+This small Joos program is a useful way to follow one input through the compiler. `getDensity` divides two integers; `test` calls it and prints the result. The diagrams show the whole `Main` class, including both methods.
 
-**TwoSumDemo.java**
+### Source
+
+[Main.java](examples/get-density/Main.java)
 
 ```java
-public class TwoSumDemo {
-  public TwoSumDemo() {}
+public class Main {
+  public Main() {}
+
+  public static int getDensity(int mass, int volume) {
+    return mass / volume;
+  }
 
   public static int test() {
-    int[] values = new int[6];
-    IntPair answer = null;
-
-    values[0] = 4;
-    values[1] = 1;
-    values[2] = 9;
-    values[3] = 3;
-    values[4] = 7;
-    values[5] = 11;
-
-    answer = new TwoSumSolver().solve(values, 10);
-
-    if (answer == null) {
-      System.out.println("not found");
-    } else {
-      System.out.println(answer.render());
-    }
-
+    int density = Main.getDensity(110, 11);
+    System.out.println(density);
     return 123;
   }
 }
 ```
 
-**TwoSumSolver.java**
+### Frontend
 
-```java
-public class TwoSumSolver {
-  public TwoSumSolver() {}
+After scanning, parsing, AST construction, and weeding, the tree has the program's structure. Calls such as `Main.getDensity` and `System.out.println` still contain ambiguous names at this point.
 
-  public IntPair solve(int[] values, int target) {
-    int i = 0;
+[![Frontend AST for the Main class containing getDensity and test](visualizations/ast_after_full_frontend.png)](visualizations/ast_after_full_frontend.svg)
 
-    while (i < values.length) {
-      int j = i + 1;
+[Open the SVG](visualizations/ast_after_full_frontend.svg) or [DOT file](visualizations/ast_after_full_frontend.dot).
 
-      while (j < values.length) {
-        if (values[i] + values[j] == target) {
-          return new IntPair(i, j);
-        }
-        j = j + 1;
-      }
+### Middle end
 
-      i = i + 1;
-    }
+After name resolution, disambiguation, type checking, and static analysis, the tree identifies names as types or expressions and attaches symbol IDs to bindings.
 
-    return null;
-  }
-}
+[![Middle-end AST for the same Main class, showing resolved names and symbol IDs](visualizations/ast_after_full_middle_end.png)](visualizations/ast_after_full_middle_end.svg)
+
+[Open the SVG](visualizations/ast_after_full_middle_end.svg) or [DOT file](visualizations/ast_after_full_middle_end.dot).
+
+### Assembly
+
+The backend emits 32-bit x86 assembly. This is the generated `getDensity` method, including its divide-by-zero check. The [full assembly file](visualizations/final_assembly.s) also contains `Main.test` and the class metadata.
+
+```nasm
+Main.getDensity$178:
+push ebp
+mov ebp, esp
+mov eax, [ebp + 8]
+push eax
+mov eax, [ebp + 12]
+mov ebx, eax
+pop eax
+cmp ebx, 0
+je __exception
+cdq
+idiv ebx
+jmp Main.getDensity$178$end
+Main.getDensity$178$end:
+mov esp, ebp
+pop ebp
+ret
 ```
-
-**IntPair.java**
-
-```java
-public class IntPair {
-  public int first;
-  public int second;
-
-  public IntPair(int first, int second) {
-    this.first = first;
-    this.second = second;
-  }
-
-  public String render() {
-    return "[" + first + ", " + second + "]";
-  }
-}
-```
-
-### Full frontend tree
-
-This is the **full frontend AST** for all three Two Sum files, rendered from the compiler's [DOT output](visualizations/two-sum-full-frontend.dot). Open the [full-size PNG](visualizations/two-sum-full-frontend.png) or [SVG](visualizations/two-sum-full-frontend.svg) to zoom in.
-
-[![Full frontend abstract syntax tree for the three-file Two Sum example](visualizations/two-sum-full-frontend.png)](visualizations/two-sum-full-frontend.svg)
 
 ## Reports
 
